@@ -162,6 +162,8 @@ Your goal is to assist students, prospective applicants, and faculty with accura
 
 # Static files configuration with DATA_DIR support
 UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
+os.makedirs(os.path.join(UPLOADS_DIR, "profiles"), exist_ok=True)
+os.makedirs(os.path.join(UPLOADS_DIR, "chat"), exist_ok=True)
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
