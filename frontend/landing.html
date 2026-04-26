@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ILMA AI - Your Academic Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+        }
+        .glow {
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.3);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-pulse-slow {
+            animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <i data-lucide="graduation-cap" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="font-bold text-xl">ILMA AI</span>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="#features" class="text-gray-300 hover:text-white transition">Features</a>
+                    <a href="#about" class="text-gray-300 hover:text-white transition">About</a>
+                    <a href="/login.html" class="text-gray-300 hover:text-white transition">Login</a>
+                    <a href="/register.html" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg font-medium hover:shadow-lg hover:shadow-indigo-500/25 transition">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-float">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                <span class="text-sm text-gray-300">Powered by Gemini 2.0 Flash</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+                Your <span class="text-gradient">AI Academic</span><br>Assistant
+            </h1>
+            
+            <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+                Get instant answers about admissions, programs, and campus life at ILMA University. 
+                Powered by advanced AI for accurate, helpful responses.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <a href="/register.html" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl font-semibold text-lg hover:shadow-xl hover:shadow-indigo-500/25 transition glow">
+                    <i data-lucide="rocket" class="w-5 h-5 inline mr-2"></i>
+                    Start Chatting
+                </a>
+                <a href="/login.html" class="px-8 py-4 glass rounded-xl font-semibold text-lg hover:bg-white/10 transition">
+                    <i data-lucide="log-in" class="w-5 h-5 inline mr-2"></i>
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Everything You Need</h2>
+                <p class="text-gray-400">Designed for ILMA University students and applicants</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-6">
+                        <i data-lucide="message-square" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Smart Conversations</h3>
+                    <p class="text-gray-400">Natural language understanding with context-aware responses about university life.</p>
+                </div>
+                
+                <div class="glass rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mb-6">
+                        <i data-lucide="book-open" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Academic Info</h3>
+                    <p class="text-gray-400">Get detailed information about programs, courses, and admission requirements.</p>
+                </div>
+                
+                <div class="glass rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mb-6">
+                        <i data-lucide="shield-check" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Secure & Private</h3>
+                    <p class="text-gray-400">Your conversations are encrypted and your data stays protected.</p>
+                </div>
+                
+                <div class="glass rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center mb-6">
+                        <i data-lucide="zap" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Lightning Fast</h3>
+                    <p class="text-gray-400">Streaming responses with minimal latency for real-time assistance.</p>
+                </div>
+                
+                <div class="glass rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center mb-6">
+                        <i data-lucide="image" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Image Support</h3>
+                    <p class="text-gray-400">Upload images and get AI-powered analysis and assistance.</p>
+                </div>
+                
+                <div class="glass rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center mb-6">
+                        <i data-lucide="history" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Chat History</h3>
+                    <p class="text-gray-400">All your conversations saved for easy reference and continuity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="glass rounded-3xl p-8 md:p-12">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div>
+                        <div class="text-4xl md:text-5xl font-bold text-gradient mb-2">24/7</div>
+                        <div class="text-gray-400">Available</div>
+                    </div>
+                    <div>
+                        <div class="text-4xl md:text-5xl font-bold text-gradient mb-2">100%</div>
+                        <div class="text-gray-400">ILMA Focused</div>
+                    </div>
+                    <div>
+                        <div class="text-4xl md:text-5xl font-bold text-gradient mb-2">&lt;1s</div>
+                        <div class="text-gray-400">Response Time</div>
+                    </div>
+                    <div>
+                        <div class="text-4xl md:text-5xl font-bold text-gradient mb-2">Free</div>
+                        <div class="text-gray-400">For Students</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl md:text-5xl font-bold mb-6">Ready to Get Started?</h2>
+            <p class="text-gray-400 text-lg mb-10 max-w-2xl mx-auto">
+                Join thousands of ILMA University students using AI to enhance their academic journey.
+            </p>
+            <a href="/register.html" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl font-semibold text-lg hover:shadow-xl hover:shadow-indigo-500/25 transition glow">
+                <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i>
+                Create Free Account
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="font-semibold">ILMA AI</span>
+            </div>
+            <p class="text-gray-400 text-sm">© 2025 ILMA University. Official Academic Support.</p>
+            <div class="flex gap-4">
+                <a href="/admin.html" class="text-gray-400 hover:text-white text-sm">Admin</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

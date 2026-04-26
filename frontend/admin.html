@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | ILMA AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .sidebar-link { transition: all 0.2s; }
+        .sidebar-link:hover, .sidebar-link.active { background: rgba(99, 102, 241, 0.2); border-left: 3px solid #6366f1; }
+        .metric-card { transition: transform 0.2s; }
+        .metric-card:hover { transform: translateY(-2px); }
+        .scrollbar-hide::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-hide::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        .scrollbar-hide::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        .table-row { transition: background 0.2s; }
+        .table-row:hover { background: rgba(255,255,255,0.03); }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .pulse-dot { animation: pulse-dot 2s infinite; }
+    </style>
+</head>
+<body class="gradient-bg text-white h-screen overflow-hidden">
+    <!-- Check Admin -->
+    <script>
+        if (!localStorage.getItem('token') || localStorage.getItem('is_admin') !== 'true') {
+            window.location.href = '/login.html';
+        }
+    </script>
+
+    <div class="flex h-full">
+        <!-- Sidebar -->
+        <aside class="w-64 glass border-r border-white/5 flex flex-col">
+            <div class="p-6 border-b border-white/5">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <i data-lucide="shield" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold">Admin Panel</h1>
+                        <p class="text-xs text-gray-400">ILMA AI Control Center</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-1">
+                <a href="#dashboard" onclick="showTab('dashboard')" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    Dashboard
+                </a>
+                <a href="#users" onclick="showTab('users')" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    Users
+                </a>
+                <a href="#chats" onclick="showTab('chats')" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                    <i data-lucide="message-square" class="w-5 h-5"></i>
+                    Conversations
+                </a>
+                <a href="#analytics" onclick="showTab('analytics')" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm">
+                    <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                    Analytics
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-white/5">
+                <a href="/chat.html" class="flex items-center gap-3 px-4 py-3 glass rounded-lg text-sm hover:bg-white/5 transition">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    Back to Chat
+                </a>
+                <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg text-sm transition mt-2">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto scrollbar-hide">
+            <!-- Header -->
+            <header class="sticky top-0 z-10 glass border-b border-white/5 px-8 py-4 flex items-center justify-between">
+                <div>
+                    <h2 id="pageTitle" class="text-xl font-bold">Dashboard Overview</h2>
+                    <p class="text-sm text-gray-400">Real-time system metrics and monitoring</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 px-4 py-2 glass rounded-lg">
+                        <span class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></span>
+                        <span class="text-sm text-gray-300">System Online</span>
+                    </div>
+                    <button onclick="refreshData()" class="p-2 glass rounded-lg hover:bg-white/5 transition" title="Refresh Data">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="p-8">
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="metric-card glass rounded-2xl p-6 border border-white/5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                                <i data-lucide="users" class="w-6 h-6 text-blue-400"></i>
+                            </div>
+                            <span class="text-xs text-green-400 flex items-center gap-1">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i> +12%
+                            </span>
+                        </div>
+                        <div class="text-3xl font-bold mb-1" id="metricUsers">--</div>
+                        <div class="text-sm text-gray-400">Total Users</div>
+                    </div>
+
+                    <div class="metric-card glass rounded-2xl p-6 border border-white/5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                                <i data-lucide="message-circle" class="w-6 h-6 text-purple-400"></i>
+                            </div>
+                            <span class="text-xs text-green-400 flex items-center gap-1">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i> +8%
+                            </span>
+                        </div>
+                        <div class="text-3xl font-bold mb-1" id="metricMessages">--</div>
+                        <div class="text-sm text-gray-400">Total Messages</div>
+                    </div>
+
+                    <div class="metric-card glass rounded-2xl p-6 border border-white/5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                                <i data-lucide="activity" class="w-6 h-6 text-green-400"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mb-1" id="metricActive">--</div>
+                        <div class="text-sm text-gray-400">Active Today</div>
+                    </div>
+
+                    <div class="metric-card glass rounded-2xl p-6 border border-white/5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                                <i data-lucide="bar-chart" class="w-6 h-6 text-orange-400"></i>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mb-1" id="metricAvg">--</div>
+                        <div class="text-sm text-gray-400">Avg Messages/User</div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="glass rounded-2xl p-6 border border-white/5">
+                        <h3 class="font-semibold mb-4 flex items-center gap-2">
+                            <i data-lucide="line-chart" class="w-5 h-5 text-indigo-400"></i>
+                            Messages per Day (Last 7 Days)
+                        </h3>
+                        <canvas id="messagesChart" height="200"></canvas>
+                    </div>
+
+                    <div class="glass rounded-2xl p-6 border border-white/5">
+                        <h3 class="font-semibold mb-4 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-5 h-5 text-purple-400"></i>
+                            Users by Department
+                        </h3>
+                        <canvas id="departmentsChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <h3 class="font-semibold mb-4 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-5 h-5 text-blue-400"></i>
+                        Recent Activity
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left text-gray-400 text-sm border-b border-white/10">
+                                    <th class="pb-3 font-medium">Time</th>
+                                    <th class="pb-3 font-medium">User</th>
+                                    <th class="pb-3 font-medium">Type</th>
+                                    <th class="pb-3 font-medium">Content</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentActivityTable" class="text-sm">
+                                <tr><td colspan="4" class="py-8 text-center text-gray-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users" class="p-8 hidden">
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                        <h3 class="font-semibold text-lg">Registered Users</h3>
+                        <div class="flex gap-3">
+                            <div class="relative">
+                                <i data-lucide="search" class="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                                <input type="text" id="searchUsers" placeholder="Search users..." 
+                                    class="pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm focus:outline-none focus:border-indigo-500/50 w-64"
+                                    oninput="filterUsers()">
+                            </div>
+                            <select id="filterDept" onchange="filterUsers()" class="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm focus:outline-none focus:border-indigo-500/50">
+                                <option value="">All Departments</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left text-gray-400 text-sm border-b border-white/10">
+                                    <th class="pb-3 font-medium">ID</th>
+                                    <th class="pb-3 font-medium">Student ID</th>
+                                    <th class="pb-3 font-medium">Name</th>
+                                    <th class="pb-3 font-medium">Email</th>
+                                    <th class="pb-3 font-medium">Department</th>
+                                    <th class="pb-3 font-medium">Semester</th>
+                                    <th class="pb-3 font-medium">Role</th>
+                                    <th class="pb-3 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable" class="text-sm">
+                                <tr><td colspan="8" class="py-8 text-center text-gray-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chats Tab -->
+            <div id="chats" class="p-8 hidden">
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-semibold text-lg">All Conversations</h3>
+                        <button onclick="refreshData()" class="px-4 py-2 glass rounded-lg text-sm hover:bg-white/5 transition">
+                            <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-left text-gray-400 text-sm border-b border-white/10">
+                                    <th class="pb-3 font-medium">Session ID</th>
+                                    <th class="pb-3 font-medium">User</th>
+                                    <th class="pb-3 font-medium">Messages</th>
+                                    <th class="pb-3 font-medium">Last Active</th>
+                                    <th class="pb-3 font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chatsTable" class="text-sm">
+                                <tr><td colspan="5" class="py-8 text-center text-gray-500">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics" class="p-8 hidden">
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <h3 class="font-semibold text-lg mb-6">Detailed Analytics</h3>
+                    <p class="text-gray-400">Advanced analytics features coming soon...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- View Session Modal -->
+    <div id="sessionModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass rounded-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                <h3 class="font-semibold text-lg">Conversation Transcript</h3>
+                <button onclick="closeSessionModal()" class="p-2 hover:bg-white/10 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="sessionContent" class="p-6 overflow-y-auto flex-1 space-y-4">
+                <!-- Messages loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script>
+        lucide.createIcons();
+
+        let dashboardData = null;
+        let messagesChart = null;
+        let departmentsChart = null;
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+            // Auto refresh every 30 seconds
+            setInterval(refreshData, 30000);
+        });
+
+        async function loadDashboardData() {
+            try {
+                const res = await fetch('/admin/dashboard-data', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (!res.ok) {
+                    if (res.status === 403) {
+                        alert('Admin access required');
+                        window.location.href = '/chat.html';
+                        return;
+                    }
+                    throw new Error('Failed to load data');
+                }
+
+                dashboardData = await res.json();
+                updateDashboard(dashboardData);
+            } catch (err) {
+                console.error('Error loading dashboard:', err);
+                showToast('Failed to load dashboard data', 'error');
+            }
+        }
+
+        function updateDashboard(data) {
+            // Update metrics
+            document.getElementById('metricUsers').textContent = data.metrics.total_users.toLocaleString();
+            document.getElementById('metricMessages').textContent = data.metrics.total_messages.toLocaleString();
+            document.getElementById('metricActive').textContent = data.metrics.active_today.toLocaleString();
+            document.getElementById('metricAvg').textContent = data.metrics.avg_messages_per_user;
+
+            // Update charts
+            updateCharts(data);
+
+            // Update tables
+            updateUsersTable(data.users);
+            updateChatsTable(data.recent_chats);
+            updateActivityTable(data.recent_chats.slice(0, 10));
+        }
+
+        function updateCharts(data) {
+            // Messages per day chart
+            const messagesCtx = document.getElementById('messagesChart').getContext('2d');
+            if (messagesChart) messagesChart.destroy();
+            
+            messagesChart = new Chart(messagesCtx, {
+                type: 'line',
+                data: {
+                    labels: data.metrics.messages_per_day.map(d => d.date.slice(5)),
+                    datasets: [{
+                        label: 'Messages',
+                        data: data.metrics.messages_per_day.map(d => d.count),
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                        x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
+
+            // Departments chart
+            const deptCtx = document.getElementById('departmentsChart').getContext('2d');
+            if (departmentsChart) departmentsChart.destroy();
+            
+            departmentsChart = new Chart(deptCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.metrics.top_departments.map(d => d.name),
+                    datasets: [{
+                        data: data.metrics.top_departments.map(d => d.count),
+                        backgroundColor: ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'right', labels: { color: '#9ca3af' } } }
+                }
+            });
+        }
+
+        function updateUsersTable(users) {
+            const tbody = document.getElementById('usersTable');
+            tbody.innerHTML = users.map(u => `
+                <tr class="table-row border-b border-white/5" data-dept="${u.department}">
+                    <td class="py-3">#${u.id}</td>
+                    <td class="py-3 font-mono text-indigo-300">${u.student_id}</td>
+                    <td class="py-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center text-xs font-bold">
+                                ${u.full_name.charAt(0)}
+                            </div>
+                            <span>${u.full_name}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 text-gray-400">${u.email}</td>
+                    <td class="py-3">
+                        <span class="px-2 py-1 bg-indigo-500/20 text-indigo-300 rounded text-xs">${u.department}</span>
+                    </td>
+                    <td class="py-3">Semester ${u.semester}</td>
+                    <td class="py-3">
+                        ${u.is_admin ? '<span class="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-xs">Admin</span>' : '<span class="px-2 py-1 bg-gray-500/20 text-gray-300 rounded text-xs">User</span>'}
+                    </td>
+                    <td class="py-3">
+                        <button onclick="toggleAdmin(${u.id}, ${!u.is_admin})" class="p-1 hover:bg-white/10 rounded" title="${u.is_admin ? 'Remove Admin' : 'Make Admin'}">
+                            <i data-lucide="${u.is_admin ? 'user-minus' : 'shield'}" class="w-4 h-4 ${u.is_admin ? 'text-red-400' : 'text-green-400'}"></i>
+                        </button>
+                        ${!u.is_admin ? `<button onclick="deleteUser(${u.id})" class="p-1 hover:bg-red-500/20 rounded ml-1" title="Delete">
+                            <i data-lucide="trash-2" class="w-4 h-4 text-red-400"></i>
+                        </button>` : ''}
+                    </td>
+                </tr>
+            `).join('');
+
+            // Populate department filter
+            const depts = [...new Set(users.map(u => u.department))];
+            const filterSelect = document.getElementById('filterDept');
+            filterSelect.innerHTML = '<option value="">All Departments</option>' + 
+                depts.map(d => `<option value="${d}">${d}</option>`).join('');
+
+            lucide.createIcons();
+        }
+
+        function updateChatsTable(chats) {
+            // Group by session
+            const sessions = {};
+            chats.forEach(c => {
+                if (!sessions[c.session_id]) {
+                    sessions[c.session_id] = { messages: [], lastActive: c.timestamp };
+                }
+                sessions[c.session_id].messages.push(c);
+            });
+
+            const tbody = document.getElementById('chatsTable');
+            tbody.innerHTML = Object.entries(sessions).slice(0, 20).map(([sid, data]) => {
+                const userMsg = data.messages.find(m => m.role === 'user');
+                const userName = userMsg ? `User #${userMsg.user_id}` : 'Unknown';
+                const shortId = sid.split('-')[0];
+                return `
+                    <tr class="table-row border-b border-white/5">
+                        <td class="py-3 font-mono text-xs text-gray-400">${shortId}...</td>
+                        <td class="py-3">${userName}</td>
+                        <td class="py-3">${data.messages.length} messages</td>
+                        <td class="py-3 text-gray-400">${new Date(data.lastActive).toLocaleString()}</td>
+                        <td class="py-3">
+                            <button onclick="viewSession('${sid}')" class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded text-xs hover:bg-indigo-500/30 transition">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function updateActivityTable(chats) {
+            const tbody = document.getElementById('recentActivityTable');
+            tbody.innerHTML = chats.map(c => {
+                const roleColor = c.role === 'bot' ? 'text-purple-400' : 'text-blue-400';
+                const roleBg = c.role === 'bot' ? 'bg-purple-500/20' : 'bg-blue-500/20';
+                const snippet = c.content.length > 50 ? c.content.substring(0, 50) + '...' : c.content;
+                return `
+                    <tr class="table-row border-b border-white/5">
+                        <td class="py-3 text-gray-400">${new Date(c.timestamp).toLocaleTimeString()}</td>
+                        <td class="py-3">User #${c.user_id}</td>
+                        <td class="py-3">
+                            <span class="px-2 py-1 ${roleBg} ${roleColor} rounded text-xs uppercase">${c.role}</span>
+                        </td>
+                        <td class="py-3 text-gray-300">${snippet}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            ['dashboard', 'users', 'chats', 'analytics'].forEach(t => {
+                document.getElementById(t).classList.add('hidden');
+            });
+            // Show selected tab
+            document.getElementById(tabName).classList.remove('hidden');
+
+            // Update sidebar
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.closest('.sidebar-link').classList.add('active');
+
+            // Update title
+            const titles = {
+                dashboard: 'Dashboard Overview',
+                users: 'User Management',
+                chats: 'Conversation History',
+                analytics: 'Analytics'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabName];
+
+            lucide.createIcons();
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('searchUsers').value.toLowerCase();
+            const dept = document.getElementById('filterDept').value;
+
+            document.querySelectorAll('#usersTable tr').forEach(row => {
+                if (row.querySelector('td[colspan]')) return;
+                const text = row.textContent.toLowerCase();
+                const rowDept = row.getAttribute('data-dept');
+                const matchesSearch = text.includes(search);
+                const matchesDept = !dept || rowDept === dept;
+                row.style.display = matchesSearch && matchesDept ? '' : 'none';
+            });
+        }
+
+        async function toggleAdmin(userId, makeAdmin) {
+            if (!confirm(makeAdmin ? 'Make this user an admin?' : 'Remove admin privileges?')) return;
+
+            try {
+                const formData = new FormData();
+                formData.append('is_admin', makeAdmin);
+
+                const res = await fetch(`/admin/users/${userId}/admin`, {
+                    method: 'PATCH',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    showToast(makeAdmin ? 'User promoted to admin' : 'Admin privileges removed', 'success');
+                    refreshData();
+                }
+            } catch (e) {
+                showToast('Action failed', 'error');
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('Delete this user? This action cannot be undone.')) return;
+
+            try {
+                const res = await fetch(`/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (res.ok) {
+                    showToast('User deleted', 'success');
+                    refreshData();
+                }
+            } catch (e) {
+                showToast('Delete failed', 'error');
+            }
+        }
+
+        async function viewSession(sessionId) {
+            try {
+                const res = await fetch(`/admin/sessions/${sessionId}`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                if (!res.ok) throw new Error('Failed to load session');
+
+                const messages = await res.json();
+                const container = document.getElementById('sessionContent');
+                container.innerHTML = messages.map(m => {
+                    const isBot = m.role === 'bot';
+                    return `
+                        <div class="flex gap-3 ${isBot ? '' : 'flex-row-reverse'}">
+                            <div class="w-8 h-8 rounded-full ${isBot ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : 'bg-gradient-to-br from-gray-600 to-gray-700'} flex items-center justify-center shrink-0">
+                                <i data-lucide="${isBot ? 'bot' : 'user'}" class="w-4 h-4 text-white"></i>
+                            </div>
+                            <div class="flex-1 ${isBot ? '' : 'text-right'}">
+                                <div class="inline-block ${isBot ? 'glass' : 'bg-indigo-600/30 border border-indigo-500/30'} rounded-xl px-4 py-2 max-w-lg">
+                                    <p class="text-sm">${m.content}</p>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">${new Date(m.timestamp).toLocaleString()}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('sessionModal').classList.remove('hidden');
+                document.getElementById('sessionModal').classList.add('flex');
+                lucide.createIcons();
+            } catch (e) {
+                showToast('Failed to load session', 'error');
+            }
+        }
+
+        function closeSessionModal() {
+            document.getElementById('sessionModal').classList.add('hidden');
+            document.getElementById('sessionModal').classList.remove('flex');
+        }
+
+        async function refreshData() {
+            const refreshBtn = document.querySelector('button[onclick="refreshData()"]');
+            refreshBtn.classList.add('animate-spin');
+            await loadDashboardData();
+            setTimeout(() => refreshBtn.classList.remove('animate-spin'), 500);
+            showToast('Data refreshed', 'success');
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const bg = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-indigo-500';
+            toast.className = `fixed bottom-4 right-4 ${bg} text-white px-4 py-2 rounded-lg shadow-lg z-50`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

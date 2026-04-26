@@ -1,0 +1,15 @@
+# This file is for Netlify compatibility
+# ILMA Bot is designed for Railway deployment
+# See railway.json for actual deployment config
+
+[build]
+  command = "pip install -r requirements.txt"
+  publish = "frontend/"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
