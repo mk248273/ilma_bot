@@ -145,11 +145,13 @@ app.add_middleware(
 
 # Configure Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    print("WARNING: GEMINI_API_KEY not set. AI features will not work.")
-genai.configure(api_key=GEMINI_API_KEY)
 MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
-model = genai.GenerativeModel(MODEL_NAME)
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    model = genai.GenerativeModel(MODEL_NAME)
+else:
+    print("WARNING: GEMINI_API_KEY not set. AI features will not work.")
+    model = None
 
 SYSTEM_PROMPT = """You are the official ILMA AI Assistant for ILMA University. 
 Your goal is to assist students, prospective applicants, and faculty with accurate information based on the provided ILMA University context.
@@ -378,6 +380,8 @@ async def send_message(
     db: Session = Depends(get_db)
 ):
     """Send a message and get streaming AI response"""
+    if model is None:
+        raise HTTPException(status_code=503, detail="AI service not configured. Please set GEMINI_API_KEY environment variable.")
     # Rate limiting
     if not rate_limiter.is_allowed(current_user.id):
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Please slow down.")
