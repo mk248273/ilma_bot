@@ -6,6 +6,7 @@ import os
 
 # Use DATA_DIR env var for Railway volume support
 DATA_DIR = os.getenv("DATA_DIR", ".")
+os.makedirs(DATA_DIR, exist_ok=True)
 DB_PATH = os.path.join(DATA_DIR, "ilma_bot_v2.db")
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
 
